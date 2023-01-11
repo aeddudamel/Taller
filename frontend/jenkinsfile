@@ -5,12 +5,12 @@ pipeline {
     nodejs "node"
   }
 
-  parameters {
+  /*parameters {
     string(name: 'container_name', defaultValue: 'pagina_web', description: 'Nombre del contenedor de docker.')
     string(name: 'image_name', defaultValue: 'pagina_img', description: 'Nombre de la imagene docker.')
     string(name: 'tag_image', defaultValue: 'lts', description: 'Tag de la imagen de la página.')
     string(name: 'container_port', defaultValue: '80', description: 'Puerto que usa el contenedor')
-  }
+  }*/
 
   stages {
     stage('install') {
@@ -35,7 +35,7 @@ pipeline {
         dir('frontend') {
           script {
             try {
-              bat 'docker stop ${container_name}'
+              //bat 'docker stop ${container_name}'
               //bat 'docker rm ${container_name}'
               //bat 'docker rmi ${image_name}:${tag_image}'
             } catch (Exception e) {
@@ -43,7 +43,7 @@ pipeline {
             }
           }
           bat 'npm run build'
-          bat 'docker build https://github.com/aeddudamel/Taller.git#main:frontend .'
+          bat 'docker build .'
         }
       }
     }
