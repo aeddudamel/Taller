@@ -5,13 +5,6 @@ pipeline {
     nodejs "node"
   }
 
-  parameters {
-    string(name: 'container_name', defaultValue: 'pagina_web', description: 'Nombre del contenedor de docker.')
-    string(name: 'image_name', defaultValue: 'pagina_img', description: 'Nombre de la imagene docker.')
-    string(name: 'tag_image', defaultValue: 'lts', description: 'Tag de la imagen de la página.')
-    string(name: 'container_port', defaultValue: '80', description: 'Puerto que usa el contenedor')
-  }
-
   stages {
     stage('install') {
       steps {
@@ -29,30 +22,37 @@ pipeline {
         }
       }
     }
+        stage('DAST') {
+            steps { 
+              dir('frontend') {
+                script {
+                    try {
+                        echo "Inicio de Scanneo Dinamico"
+                        bat "docker exec zap zap-cli --verbose quick-scan http://pipeline.ironbox.com.ar:8090 -l Medium" 
+                        //sh "docker exec zap zap-cli --verbose alerts --alert-level Medium -f json | jq length"
+                        currentBuild.result = 'SUCCESS' 
+                    }
+                    catch (Exception e) {
+                            //echo e.getMessage() 
+                            //currentBuild.result = 'FAILURE'
+                            println ("Revisar Reporte ZAP. Se encontraron Vulnerabilidades.")
 
-    stage('build') {
-      steps {
-        dir('frontend') {
-          script {
-            try {
-              bat 'docker stop ${container_name}'
-              bat 'docker rm ${container_name}'
-              bat 'docker rmi ${image_name}:${tag_image}'
-            } catch (Exception e) {
-              echo 'Exception occurred: ' + e.toString()
+                        }
+                    } }   
+                    echo currentBuild.result 
+                    echo "Generacion de Reporte"
+                    sh "docker exec zap zap-cli --verbose report -o /reports/owasp-quick-scan-report.html --output-format html"
+                    publishHTML target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: false,
+                        keepAll: true,
+                        reportDir: '/opt/dast/reports',
+                        reportFiles: 'owasp-quick-scan-report.html',
+                        reportName: 'Analisis DAST'
+                      ]          
             }
-          }
-          bat 'npm run build'
-          bat 'docker build .'
         }
-      }
-    }
-
-    stage('deploy') {
-      steps {
-        bat 'docker run -d -p ${container_port}:80 --name ${container_name}'
-      }
-    }
+    
 
 
 
