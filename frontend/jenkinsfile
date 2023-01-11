@@ -17,7 +17,7 @@ pipeline {
       steps {
         git branch: 'main', url: 'https://github.com/aeddudamel/Taller.git'
         dir('frontend') {
-          sh 'npm install'
+          bat 'npm install'
         }
       }
     }
