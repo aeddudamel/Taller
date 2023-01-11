@@ -24,12 +24,12 @@ pipeline {
                     }  
                     echo currentBuild.result 
                     echo "Generacion de Reporte"
-                    bat "docker exec zap zap-cli --verbose report -o 'C:\ProgramData\Jenkins\.jenkins\workspace\Test\frontend\reports\owasp-quick-scan-report.html' --output-format html"
+                    bat "docker exec zap zap-cli --verbose report -o 'C:/ProgramData/Jenkins/.jenkins/workspace/Test/frontend/owasp-quick-scan-report.html' --output-format html"
                     publishHTML target: [
                         allowMissing: false,
                         alwaysLinkToLastBuild: false,
                         keepAll: true,
-                        reportDir: 'C:\ProgramData\Jenkins\.jenkins\workspace\Test\frontend\reports',
+                        reportDir: 'C:/ProgramData/Jenkins/.jenkins/workspace/Test/frontend',
                         reportFiles: 'owasp-quick-scan-report.html',
                         reportName: 'Analisis DAST'
                       ]          
