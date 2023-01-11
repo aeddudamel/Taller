@@ -5,12 +5,19 @@ pipeline {
     nodejs "node"
   }
 
+  parameters {
+    string(name: 'container_name', defaultValue: 'pagina_web', description: 'Nombre del contenedor de docker.')
+    string(name: 'image_name', defaultValue: 'pagina_img', description: 'Nombre de la imagene docker.')
+    string(name: 'tag_image', defaultValue: 'lts', description: 'Tag de la imagen de la página.')
+    string(name: 'container_port', defaultValue: '80', description: 'Puerto que usa el contenedor')
+  }
+
   stages {
     stage('install') {
       steps {
-        git branch: 'main', url: 'https://github.com/aeddudamel/Taller.git'
+        git branch: 'develop', url: 'https://github.com/LuisArana631/Taller.git'
         dir('frontend') {
-          bat 'npm install'
+          sh 'npm install'
         }
       }
     }
@@ -18,44 +25,34 @@ pipeline {
     stage('test') {
       steps {
         dir('frontend') {
-          bat 'npm run test'
+          sh 'npm run test'
         }
       }
     }
-        stage('DAST') {
-            steps { 
-              dir('frontend') {
-                script {
-                    try {
-                        echo "Inicio de Scanneo Dinamico"
-                        bat "docker exec zap zap-cli --verbose quick-scan http://localhost:8080 -l Medium" 
-                        //sh "docker exec zap zap-cli --verbose alerts --alert-level Medium -f json | jq length"
-                        currentBuild.result = 'SUCCESS' 
-                    }
-                    catch (Exception e) {
-                            //echo e.getMessage() 
-                            //currentBuild.result = 'FAILURE'
-                            println ("Revisar Reporte ZAP. Se encontraron Vulnerabilidades.")
 
-                        }
-                    } }   
-                    echo currentBuild.result 
-                    echo "Generacion de Reporte"
-                    sh "docker exec zap zap-cli --verbose report -o /reports/owasp-quick-scan-report.html --output-format html"
-                    publishHTML target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: true,
-                        reportDir: '/opt/dast/reports',
-                        reportFiles: 'owasp-quick-scan-report.html',
-                        reportName: 'Analisis DAST'
-                      ]          
+    stage('build') {
+      steps {
+        dir('frontend') {
+          script {
+            try {
+              sh 'docker stop ${container_name}'
+              sh 'docker rm ${container_name}'
+              sh 'docker rmi ${image_name}:${tag_image}'
+            } catch (Exception e) {
+              echo 'Exception occurred: ' + e.toString()
             }
+          }
+          sh 'npm run build'
+          sh 'docker build -t ${image_name}:${tag_image} .'
         }
-    
+      }
+    }
 
-
-
+    stage('deploy') {
+      steps {
+        sh 'docker run -d -p ${container_port}:80 --name ${container_name} ${image_name}:${tag_image}'
+      }
+    }
   }
 
 }
