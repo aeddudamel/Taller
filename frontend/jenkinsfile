@@ -28,7 +28,7 @@ pipeline {
                 script {
                     try {
                         echo "Inicio de Scanneo Dinamico"
-                        bat "docker exec zap zap-cli --verbose quick-scan http://pipeline.ironbox.com.ar:8090 -l Medium" 
+                        bat "docker exec zap zap-cli --verbose quick-scan http://localhost:8080 -l Medium" 
                         //sh "docker exec zap zap-cli --verbose alerts --alert-level Medium -f json | jq length"
                         currentBuild.result = 'SUCCESS' 
                     }
