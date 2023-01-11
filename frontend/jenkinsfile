@@ -43,7 +43,7 @@ pipeline {
             }
           }
           bat 'npm run build'
-          bat 'docker build ${image_name}:${tag_image} .'
+          bat 'docker build -t ${image_name}:${tag_image}'
         }
       }
     }
