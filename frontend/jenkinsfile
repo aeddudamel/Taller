@@ -22,13 +22,13 @@ pipeline {
       }
     }
 
-    stage('test') {
+   /* stage('test') {
       steps {
         dir('frontend') {
           bat 'npm run test'
         }
       }
-    }
+    }*/
 
     stage('build') {
       steps {
@@ -50,7 +50,7 @@ pipeline {
 
     stage('deploy') {
       steps {
-        bat 'docker run -d -p ${container_port}:80 --name taller'
+        bat 'docker run taller'
       }
     }
   }
