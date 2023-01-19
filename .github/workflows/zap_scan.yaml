@@ -1,7 +1,7 @@
 on:
   schedule:
     # Runs every day At 01:00.
-    - cron:  "*/1 * * * *"
+    - cron:  '*/1 * * * *'
 
 jobs:
   zap_scan:
