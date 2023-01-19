@@ -2,13 +2,21 @@ on:
   schedule:
     # Runs every day At 01:00.
     - cron:  '*/5 * * * *'
-
+    
 jobs:
   zap_scan:
     runs-on: ubuntu-latest
-    name: Scan ZAP website
+    name: Scan the webapplication
     steps:
-      - name: WASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.7.0
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          ref: master
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.4.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          docker_name: 'owasp/zap2docker-stable'
           target: 'https://www.zaproxy.org/'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
