@@ -2,7 +2,7 @@
 on:
   schedule:
     # Runs every day At 01:00.
-    - cron:  '*/1 * * * *'
+    - cron:  '*/5 * * * *'
 
 jobs:
   zap_scan:
@@ -12,4 +12,4 @@ jobs:
       - name: WASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.7.0
         with:
-          target: 'https://www.zaproxy.org/'
+          target: 'https://qa.alleata.co/'
